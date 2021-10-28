@@ -26,11 +26,11 @@ from webscraping.webtimers import WebDelayer
 from webscraping.webdrivers import WebDriver
 from webscraping.weburl import WebURL
 from webscraping.webpages import WebBrowserPage
-from webscraping.webpages import WebContents
+from webscraping.webpages import WebDatas, WebActions
 from webscraping.webloaders import WebLoader
 from webscraping.webdownloaders import WebDownloader, WebQuery, WebDataset
-from webscraping.webdata import WebClickable, WebButton, WebInput, WebTexts, WebClickables, WebTables
-from webscraping.webactions import WebMoveToClick, WebMoveToClickFill
+from webscraping.webdata import WebClickable, WebButton, WebInput, WebSelect, WebTables, WebKeyedClickables
+from webscraping.webactions import *
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
@@ -47,45 +47,56 @@ warnings.filterwarnings("ignore")
 username_xpath = "//input[contains(@id, 'userID')]"
 password_xpath = "//input[contains(@id, 'password')]"
 login_xpath = "//section/a[contains(@data-pt-name, 'signin')]"
-accounts_xpath = "//div[contains(@class, 'accounts-blade')]//mds-button[contains(@id, 'account')]"
-activity_xpath = "//a[contains(@id, 'header-transaction')]"
-showing_xpath = "//ul[contains(@id, 'transaction')]/li/a"
-extend_xpath = "//mds-button[@id='seeMore']"
+accounts_xpath = "//span[contains(text(), '(...')]/parent::*"
+activity_open_xpath = "//a[contains(@id, 'header-transaction')]"
+activity_items_xpath = "//ul[contains(@id, 'transaction')]/li[contains(@class, 'option')]/a"
+activity_more_xpath = "//mds-button[@id='seeMore']"
 transactions_xpath = "//table[contains(@aria-label, 'Transaction activity')]"
+pendings_xpath = "//table[contains(@aria-label, 'Pending transaction activity')]"
+download_start_xpath = "//mds-button[contains(@class, 'download')]"
+download_accounts_xpath = "//mds-select[@id='account-selector']"
+download_filetype_xpath = "//mds-select[@id='downloadFileTypeOption']"
+download_activity_xpath = "//mds-select[@id='downloadActivityOptionId']"
+download_xpath = "//mds-button[@id='download']"
 
 
 username_webloader = WebLoader(xpath=username_xpath)
 password_webloader = WebLoader(xpath=password_xpath)
 login_webloader = WebLoader(xpath=login_xpath)
 accounts_webloader = WebLoader(xpath=accounts_xpath)
-activity_webloader = WebLoader(xpath=activity_xpath)
-showing_webloader = WebLoader(xpath=showing_xpath)
-extend_webloader = WebLoader(xpath=extend_xpath)
+activity_open_webloader = WebLoader(xpath=activity_open_xpath)
+activity_items_webloader = WebLoader(xpath=activity_items_xpath, rpath=activity_items_xpath + "//span[contains(@class, 'accessible')]")
+activity_more_webloader = WebLoader(xpath=activity_more_xpath)
 transactions_webloader = WebLoader(xpath=transactions_xpath)
+pendings_webloader = WebLoader(xpath=pendings_xpath)
+download_start_webloader = WebLoader(xpath=download_start_xpath)
+download_accounts_webloader = WebLoader(xpath=download_accounts_xpath)
+download_filetype_webloader = WebLoader(xpath=download_filetype_xpath)
+download_activity_webloader = WebLoader(xpath=download_activity_xpath)
+download_webloader = WebLoader(xpath=download_xpath)
 
 
-def transactions_parser(dataframes, *args, **kwargs):
+def table_parser(dataframes, *args, **kwargs):
     pass
 
 
 class Chase_Username(WebInput, webloader=username_webloader): pass
 class Chase_Password(WebInput, webloader=password_webloader): pass
 class Chase_LogIn(WebButton, webloader=login_webloader): pass
-class Chase_Names(WebTexts, webloader=accounts_webloader): pass
-class Chase_Accounts(WebClickables, webloader=accounts_webloader): pass
-class Chase_Activity(WebClickable, webloader=activity_webloader): pass
-class Chase_Showing(WebClickables, webloader=showing_webloader): pass
-class Chase_Extend(WebButton, webloader=extend_webloader): pass
-class Chase_Transactions(WebTables, webloader=transactions_webloader, parsers={"table": transactions_parser}, headerrow=0, indexcolumn=None): pass
+class Chase_AccountOpen(WebKeyedClickables, webloader=accounts_webloader): pass
+class Chase_ActivityOpen(WebClickable, webloader=activity_open_webloader): pass
+class Chase_ActivityItems(WebKeyedClickables, webloader=activity_items_webloader): pass
+class Chase_ActivityMore(WebClickable, webloader=activity_more_webloader): pass
+class Chase_Transactions(WebTables, webloader=transactions_webloader, parsers={"table": table_parser}, headerrow=0, indexcolumn=None): pass
+class Chase_Pendings(WebTables, webloader=pendings_webloader, parsers={"table": table_parser}, headerrow=0, indexcolumn=None): pass
+class Chase_DownloadStart(WebButton, webloader=download_start_webloader): pass
+class Chase_DownloadAccount(WebSelect, webloader=download_accounts_webloader): pass
+class Chase_DownloadFiletype(WebSelect, webloader=download_filetype_webloader): pass
+class Chase_DownloadActivity(WebSelect, webloader=download_activity_webloader): pass
+class Chase_Download(WebClickable, webloader=download_webloader): pass
 
 
-class Chase_Username_WebMoveToClickFill(WebMoveToClickFill, on=Chase_Username): pass
-class Chase_Password_WebMoveToClickFill(WebMoveToClickFill, on=Chase_Password): pass
-class Chase_LogIn_WebMoveToClick(WebMoveToClick, on=Chase_LogIn): pass
-class Chase_Accounts_WebMoveToClick(WebMoveToClick, on=Chase_Accounts): pass
-class Chase_Activity_WebMoveToClick(WebMoveToClick, on=Chase_Activity): pass
-class Chase_Showing_WebMoveToClick(WebMoveToClick, on=Chase_Showing): pass
-class Chase_Extend_WebMoveToClick(WebMoveToClick, on=Chase_Extend): pass
+""" WebActions """
 
 
 class Chase_WebDelayer(WebDelayer): pass
@@ -93,19 +104,15 @@ class Chase_WebDriver(WebDriver, options={"headless": False, "images": True, "in
 class Chase_WebURL(WebURL, protocol="https", domain="www.chase.com"): pass
 
 
-class Chase_WebContents(WebContents):
-    USERNAME = Chase_Username_WebMoveToClickFill
-    PASSWORD = Chase_Password_WebMoveToClickFill
-    LOGIN = Chase_LogIn_WebMoveToClick
-    NAMES = Chase_Names
-    ACCOUNTS = Chase_Accounts_WebMoveToClick
-    ACTIVITY = Chase_Activity_WebMoveToClick
-    SHOWING = Chase_Showing_WebMoveToClick
-    EXTEND = Chase_Extend_WebMoveToClick
-    TRANSACTIONS = Chase_Transactions
+class Chase_WebDatas(WebDatas):
+    pass
 
 
-class Chase_WebPage(WebBrowserPage, contents=Chase_WebContents):
+class Chase_WebActions(WebActions):
+    pass
+
+
+class Chase_WebPage(WebBrowserPage, datas=Chase_WebActions, actions=Chase_WebActions):
     def setup(self, *args, **kwargs):
         pass
 

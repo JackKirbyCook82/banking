@@ -26,11 +26,11 @@ from webscraping.webtimers import WebDelayer
 from webscraping.webdrivers import WebDriver
 from webscraping.weburl import WebURL
 from webscraping.webpages import WebBrowserPage
-from webscraping.webpages import WebContents
+from webscraping.webpages import WebDatas, WebActions
 from webscraping.webloaders import WebLoader
 from webscraping.webdownloaders import WebDownloader, WebQuery, WebDataset
-from webscraping.webdata import WebButton, WebSelect, WebInput, WebTexts, WebClickables, WebTables, WebExtenders
-from webscraping.webactions import WebMoveToClick, WebMoveToClickFill, WebMoveToClickSelect
+from webscraping.webdata import WebClickable, WebButton, WebSelect, WebInput, WebTexts, WebClickables, WebTables, WebContainers, WebKeyedClickables
+from webscraping.webactions import *
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
@@ -44,48 +44,65 @@ LOGGER = logging.getLogger(__name__)
 warnings.filterwarnings("ignore")
 
 
-login_xpath = "//button[@id='login-btn']"
+login_start_xpath = "//button[@id='login-btn']"
 accounttype_xpath = "//select[contains(@name, 'account')]"
 username_xpath = "//input[contains(@id, 'username')]"
 password_xpath = "//input[contains(@id, 'password')]"
-submit_xpath = "//button[contains(@class, 'submit')]"
-accounts_xpath = "//div[@data-testid='account-card']//a"
-extends_xpath = "//table/caption"
+login_xpath = "//button[contains(@class, 'submit')]"
+account_open_xpath = "//div[./span[@aria-label='Open Accounts menu']]"
+account_items_xpath = "//main[@id='main']//a"
+account_values_xpath = "//div[./span[@aria-label='Open Accounts menu']]//div[@role='menu']//div[contains(@data-testid, 'account-dropdown')]/a"
+account_keys_xpath = "(//div[./span[@aria-label='Open Accounts menu']]//div[@role='menu']//div[contains(@data-testid, 'account-dropdown')]/a//p)[2]"
+table_containers_xpath = "//table/caption"
 transactions_xpath = "//section[contains(@class, 'transactions-history')]//table"
+pendings_xpath = "//div[contains(@class, 'upcoming')]//table"
+download_start_xpath = "//a[@aria-label='Download']"
+download_fileformat_xpath = "//select[@id='select-file-format']"
+download_activity_xpath = "//select[@id='select-date-range']"
+download_xpath = "//button[@data-track-name='Download']"
 
 
-login_webloader = WebLoader(xpath=login_xpath)
+login_start_webloader = WebLoader(xpath=login_start_xpath)
 accounttype_webloader = WebLoader(xpath=accounttype_xpath)
 username_webloader = WebLoader(xpath=username_xpath)
 password_webloader = WebLoader(xpath=password_xpath)
-submit_webloader = WebLoader(xpath=submit_xpath)
-accounts_webloader = WebLoader(xpath=accounts_xpath)
-extends_webloader = WebLoader(xpath=extends_xpath)
+login_webloader = WebLoader(xpath=login_xpath)
+account_open_webloader = WebLoader(xpath=account_open_xpath)
+account_items_webloader = WebLoader(xpath=account_items_xpath)
+account_values_webloader = WebLoader(xpath=account_values_xpath)
+account_keys_webloader = WebLoader(xpath=account_keys_xpath)
+table_containers_webloader = WebLoader(xpath=table_containers_xpath)
 transactions_webloader = WebLoader(xpath=transactions_xpath)
+pendings_webloader = WebLoader(xpath=pendings_xpath)
+download_start_webloader = WebLoader(xpath=download_start_xpath)
+download_fileformat_webloader = WebLoader(xpath=download_fileformat_xpath)
+download_activity_webloader = WebLoader(xpath=download_activity_xpath)
+download_webloader = WebLoader(xpath=download_xpath)
 
 
-def transactions_parser(dataframes, *args, **kwargs):
+def table_parser(dataframes, *args, **kwargs):
     pass
 
 
-class Ally_LogIn(WebButton, webloader=login_webloader): pass
+class Ally_LogInStart(WebButton, webloader=login_start_webloader): pass
 class Ally_AccountType(WebSelect, webloader=accounttype_webloader): pass
 class Ally_Username(WebInput, webloader=username_webloader): pass
 class Ally_Password(WebInput, webloader=password_webloader): pass
-class Ally_Submit(WebButton, webloader=submit_webloader): pass
-class Ally_Names(WebTexts, webloader=accounts_webloader): pass
-class Ally_Accounts(WebClickables, webloader=accounts_webloader): pass
-class Ally_Extends(WebExtenders, webloader=extends_webloader): pass
-class Ally_Transactions(WebTables, webloader=transactions_webloader, parsers={"table": transactions_parser}, headerrow=0, indexcolumn=None): pass
+class Ally_Login(WebButton, webloader=login_webloader): pass
+class Ally_AccountOpen(WebClickable, webloader=account_open_webloader): pass
+class Ally_AccountItems(WebKeyedClickables, webloader=account_items_webloader, parsers={"key": str}): pass
+class Ally_AccountValues(WebClickables, webloader=account_values_xpath): pass
+class Ally_AccountKeys(WebTexts, webloader=account_keys_webloader): pass
+class Ally_TableContainers(WebContainers, webloader=table_containers_xpath): pass
+class Ally_Transactions(WebTables, webloader=transactions_webloader, parsers={"table": table_parser}, headerrow=0, indexcolumn=None): pass
+class Ally_Pendings(WebTables, webloader=pendings_webloader, parsers={"table": table_parser}, headerrow=0, indexcolumn=None): pass
+class Ally_DownloadStart(WebClickable, webloader=download_start_webloader): pass
+class Ally_DownloadFileFormat(WebSelect, webloader=download_fileformat_webloader): pass
+class Ally_DownloadActivity(WebSelect, webloader=download_activity_webloader): pass
+class Ally_Download(WebButton, webloader=download_webloader): pass
 
 
-class Ally_LogIn_WebMoveToClick(WebMoveToClick, on=Ally_LogIn): pass
-class Ally_WebMoveToClickSelect(WebMoveToClickSelect, on=Ally_AccountType): pass
-class Ally_Username_WebMoveToClickFill(WebMoveToClickFill, on=Ally_Username): pass
-class Ally_Password_WebMoveToClickFill(WebMoveToClickFill, on=Ally_Password): pass
-class Ally_Submit_WebMoveToClick(WebMoveToClick, on=Ally_Submit): pass
-class Ally_Extends_WebMoveToClick(WebMoveToClick, on=Ally_Extends): pass
-class Ally_Accounts_WebMoveToClick(WebMoveToClick, on=Ally_Accounts): pass
+""" WebActions """
 
 
 class Ally_WebDelayer(WebDelayer): pass
@@ -93,19 +110,15 @@ class Ally_WebDriver(WebDriver, options={"headless": False, "images": True, "inc
 class Ally_WebURL(WebURL, protocol="https", domain="www.ally.com"): pass
 
 
-class Ally_WebContents(WebContents):
-    LOGIN = Ally_LogIn_WebMoveToClick
-    TYPE = Ally_WebMoveToClickSelect
-    USERNAME = Ally_Username_WebMoveToClickFill
-    PASSWORD = Ally_Password_WebMoveToClickFill
-    SUBMIT = Ally_Submit_WebMoveToClick
-    NAMES = Ally_Names
-    ACCOUNTS = Ally_Accounts_WebMoveToClick
-    EXTENDS = Ally_Extends_WebMoveToClick
-    TRANSACTIONS = Ally_Transactions
+class Ally_WebDatas(WebDatas):
+    pass
 
 
-class Ally_WebPage(WebBrowserPage, contents=Ally_WebContents):
+class Ally_WebActions(WebActions):
+    pass
+
+
+class Ally_WebPage(WebBrowserPage, datas=Ally_WebDatas, actions=Ally_WebActions):
     def setup(self, *args, **kwargs):
         pass
 
