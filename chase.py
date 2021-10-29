@@ -30,7 +30,7 @@ from webscraping.webpages import WebDatas, WebActions
 from webscraping.webloaders import WebLoader
 from webscraping.webdownloaders import WebDownloader, WebQuery, WebDataset
 from webscraping.webdata import WebClickable, WebButton, WebInput, WebSelect, WebTables, WebKeyedClickables
-from webscraping.webactions import *
+from webscraping.webactions import WebMoveToClick, WebMoveToSelect, WebUsernamePasswordSend, WebMoveToChoose, WebMoveToOpenChoose
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
@@ -83,7 +83,7 @@ def table_parser(dataframes, *args, **kwargs):
 class Chase_Username(WebInput, webloader=username_webloader): pass
 class Chase_Password(WebInput, webloader=password_webloader): pass
 class Chase_LogIn(WebButton, webloader=login_webloader): pass
-class Chase_AccountOpen(WebKeyedClickables, webloader=accounts_webloader): pass
+class Chase_Accounts(WebKeyedClickables, webloader=accounts_webloader): pass
 class Chase_ActivityOpen(WebClickable, webloader=activity_open_webloader): pass
 class Chase_ActivityItems(WebKeyedClickables, webloader=activity_items_webloader): pass
 class Chase_ActivityMore(WebClickable, webloader=activity_more_webloader): pass
@@ -96,7 +96,15 @@ class Chase_DownloadActivity(WebSelect, webloader=download_activity_webloader): 
 class Chase_Download(WebClickable, webloader=download_webloader): pass
 
 
-""" WebActions """
+class Chase_UserNamePassword_WebAction(WebUsernamePasswordSend, on=[Chase_Username, Chase_Password, Chase_LogIn]): pass
+class Chase_AccountSelect_WebAction(WebMoveToChoose, on={"items": Chase_Accounts}): pass
+class Chase_ActivitySelect_WebAction(WebMoveToOpenChoose, on=[Chase_ActivityOpen, {"items": Chase_ActivityItems}]): pass
+class Chase_OpenTables_WebAction(WebMoveToClick, on=Chase_ActivityMore): pass
+class Chase_DownloadStart_WebAction(WebMoveToClick, on=Chase_DownloadStart): pass
+class Chase_DownloadAccountSelect_WebAction(WebMoveToSelect, on=Chase_DownloadAccount): pass
+class Chase_DownloadFileFormatSelect_WebAction(WebMoveToSelect, on=Chase_DownloadFiletype): pass
+class Chase_DownloadActivitySelect_WebAction(WebMoveToSelect, on=Chase_DownloadActivity): pass
+class Chase_Download_WebAction(WebMoveToClick, on=Chase_Download): pass
 
 
 class Chase_WebDelayer(WebDelayer): pass
@@ -105,11 +113,19 @@ class Chase_WebURL(WebURL, protocol="https", domain="www.chase.com"): pass
 
 
 class Chase_WebDatas(WebDatas):
-    pass
+    TRANSACTIONS = Chase_Transactions
+    PENDINGS = Chase_Pendings
 
 
 class Chase_WebActions(WebActions):
-    pass
+    LOGIN = Chase_UserNamePassword_WebAction
+    ACCOUNT = Chase_AccountSelect_WebAction
+    ACTIVITY = Chase_ActivitySelect_WebAction
+    START_DOWNLOAD = Chase_DownloadStart_WebAction
+    ACCOUNT_DOWNLOAD = Chase_DownloadAccountSelect_WebAction
+    FILETYPE_DOWNLOAD = Chase_DownloadFileFormatSelect_WebAction
+    ACTIVITY_DOWNLOAD = Chase_DownloadActivitySelect_WebAction
+    DOWNLOAD = Chase_Download_WebAction
 
 
 class Chase_WebPage(WebBrowserPage, datas=Chase_WebActions, actions=Chase_WebActions):

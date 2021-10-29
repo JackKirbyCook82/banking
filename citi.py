@@ -29,8 +29,8 @@ from webscraping.webpages import WebBrowserPage
 from webscraping.webpages import WebDatas, WebActions
 from webscraping.webloaders import WebLoader
 from webscraping.webdownloaders import WebDownloader, WebQuery, WebDataset
-from webscraping.webdata import WebClickable, WebButton, WebInput, WebTexts, WebClickables, WebKeyedClickables, WebTables
-from webscraping.webactions import *
+from webscraping.webdata import WebClickable, WebButton, WebInput, WebKeyedClickables, WebTables
+from webscraping.webactions import WebUsernamePasswordSend, WebMoveToOpenChoose
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
@@ -85,7 +85,10 @@ class Citi_DownloadOpen(WebClickable, webloader=download_open_webloader): pass
 class Citi_Download(WebButton, webloader=download_webloader): pass
 
 
-""" WebActions """
+class Citi_UserNamePassword_WebAction(WebUsernamePasswordSend, on=[Citi_Username, Citi_Password, Citi_LogIn]): pass
+class Citi_AccountsSelect_WebAction(WebMoveToOpenChoose, on=[Citi_AccountOpen, {"items": Citi_AccountItems}]): pass
+class Citi_ActivitySelect_WebAction(WebMoveToOpenChoose, on=[Citi_ActivityOpen, {"items": Citi_ActivityItems}]): pass
+# class Citi_Download_WebAction(WebMoveToClickSeries, on=[Citi_DownloadOpen, Citi_Download]): pass
 
 
 class Citi_WebDelayer(WebDelayer): pass
@@ -94,11 +97,15 @@ class Citi_WebURL(WebURL, protocol="https", domain="www.citi.com"): pass
 
 
 class Citi_WebDatas(WebDatas):
-    pass
+    TRANSACTIONS = Citi_Transactions
+    PENDINGS = Citi_Pendings
 
 
 class Citi_WebActions(WebActions):
-    pass
+    LOGIN = Citi_UserNamePassword_WebAction
+    ACCOUNT = Citi_AccountsSelect_WebAction
+    ACTIVITY = Citi_ActivitySelect_WebAction
+    DOWNLOAD = Citi_Download_WebAction
 
 
 class Citi_WebPage(WebBrowserPage, datas=WebDatas, actions=WebActions):
