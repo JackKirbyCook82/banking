@@ -30,7 +30,7 @@ from webscraping.webpages import WebDatas, WebActions
 from webscraping.webloaders import WebLoader
 from webscraping.webdownloaders import WebDownloader, WebQuery, WebDataset
 from webscraping.webdata import WebClickable, WebButton, WebInput, WebKeyedClickables, WebTables
-from webscraping.webactions import WebUsernamePasswordSend, WebMoveToOpenChoose
+from webscraping.webactions import WebMoveToClick, WebUsernamePasswordSend, WebMoveToOpenChoose
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
@@ -88,7 +88,8 @@ class Citi_Download(WebButton, webloader=download_webloader): pass
 class Citi_UserNamePassword_WebAction(WebUsernamePasswordSend, on=[Citi_Username, Citi_Password, Citi_LogIn]): pass
 class Citi_AccountsSelect_WebAction(WebMoveToOpenChoose, on=[Citi_AccountOpen, {"items": Citi_AccountItems}]): pass
 class Citi_ActivitySelect_WebAction(WebMoveToOpenChoose, on=[Citi_ActivityOpen, {"items": Citi_ActivityItems}]): pass
-# class Citi_Download_WebAction(WebMoveToClickSeries, on=[Citi_DownloadOpen, Citi_Download]): pass
+class Citi_DownloadOpen_WebAction(WebMoveToClick, on=Citi_DownloadOpen): pass
+class Citi_Download_WebAction(WebMoveToClick, on=Citi_Download): pass
 
 
 class Citi_WebDelayer(WebDelayer): pass
@@ -105,6 +106,7 @@ class Citi_WebActions(WebActions):
     LOGIN = Citi_UserNamePassword_WebAction
     ACCOUNT = Citi_AccountsSelect_WebAction
     ACTIVITY = Citi_ActivitySelect_WebAction
+    START = Citi_DownloadOpen_WebAction
     DOWNLOAD = Citi_Download_WebAction
 
 
