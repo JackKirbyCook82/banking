@@ -85,7 +85,7 @@ def table_parser(dataframes, *args, **kwargs):
 
 
 class Ally_LoginStart(WebButton, webloader=login_start_webloader): pass
-class Ally_AccountType(WebSelect, webloader=accounttype_webloader): pass
+class Ally_AccountType(WebSelect, webloader=accounttype_webloader, mapping={"bank": "aob", "auto": "aaos"}): pass
 class Ally_Username(WebInput, webloader=username_webloader): pass
 class Ally_Password(WebInput, webloader=password_webloader): pass
 class Ally_Login(WebButton, webloader=login_webloader): pass
